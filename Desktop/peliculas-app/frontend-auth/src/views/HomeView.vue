@@ -5,7 +5,7 @@
       Hola, {{ authStore.userName }}. ¡Bienvenido!
     </p>
     <p v-else>
-      Por favor, <router-link to="/login">inicia sesión</router-link> para
+      Por favor, <router-link to="/login">inicia una sesión</router-link> para
       continuar.
     </p>
   </div>
