@@ -1,7 +1,7 @@
 const axios = require('axios');
 require('dotenv').config();
 
-const API_KEY = process.env.TMDB_API_KEY;
+const ACCESS_TOKEN = process.env.TMDB_ACCESS_TOKEN;
 const BASE_URL = process.env.TMDB_BASE_URL;
 const IMAGE_URL = process.env.TMDB_IMAGE_URL;
 
@@ -9,8 +9,10 @@ class MovieService {
   async getPopularMovies(page = 1) {
     try {
       const response = await axios.get(`${BASE_URL}/movie/popular`, {
+        headers: {
+          'Authorization': `Bearer ${ACCESS_TOKEN}`
+        },
         params: {
-          api_key: API_KEY,
           language: 'es-ES',
           page: page
         }
@@ -28,7 +30,7 @@ class MovieService {
         backdrop: movie.backdrop_path ? `${IMAGE_URL}${movie.backdrop_path}` : null
       }));
     } catch (error) {
-      console.error('Error fetching popular movies:', error.message);
+      console.error('Error fetching popular movies:', error.response?.data || error.message);
       return [];
     }
   }
@@ -36,8 +38,10 @@ class MovieService {
   async searchMovies(query, page = 1) {
     try {
       const response = await axios.get(`${BASE_URL}/search/movie`, {
+        headers: {
+          'Authorization': `Bearer ${ACCESS_TOKEN}`
+        },
         params: {
-          api_key: API_KEY,
           language: 'es-ES',
           query: query,
           page: page
@@ -53,7 +57,7 @@ class MovieService {
         poster: movie.poster_path ? `${IMAGE_URL}${movie.poster_path}` : null
       }));
     } catch (error) {
-      console.error('Error searching movies:', error.message);
+      console.error('Error searching movies:', error.response?.data || error.message);
       return [];
     }
   }
@@ -61,8 +65,10 @@ class MovieService {
   async getMovieDetails(movieId) {
     try {
       const response = await axios.get(`${BASE_URL}/movie/${movieId}`, {
+        headers: {
+          'Authorization': `Bearer ${ACCESS_TOKEN}`
+        },
         params: {
-          api_key: API_KEY,
           language: 'es-ES'
         }
       });
@@ -83,7 +89,7 @@ class MovieService {
         tagline: movie.tagline
       };
     } catch (error) {
-      console.error('Error fetching movie details:', error.message);
+      console.error('Error fetching movie details:', error.response?.data || error.message);
       return null;
     }
   }

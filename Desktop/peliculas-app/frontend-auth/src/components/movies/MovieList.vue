@@ -3,17 +3,28 @@
     <h1 class="movies-title">Catálogo de Películas</h1>
     
     <div class="search-bar">
-      <input type="text" v-model="searchQuery" @keyup.enter="searchMovies" placeholder="Buscar películas..." class="search-input" />
+      <input 
+        type="text" 
+        v-model="searchQuery" 
+        @keyup.enter="searchMovies" 
+        placeholder="Buscar películas..." 
+        class="search-input"
+      />
       <button @click="searchMovies" class="search-btn">Buscar</button>
       <button v-if="searchQuery" @click="clearSearch" class="clear-btn">Limpiar</button>
     </div>
 
-    <div v-if="moviesStore.loading" class="loading">Cargando películas...</div>
+    <div v-if="moviesStore.loading" class="loading">
+      <div class="spinner"></div>
+      Cargando películas...
+    </div>
     <div v-else-if="moviesStore.error" class="error">{{ moviesStore.error }}</div>
     <div v-else class="movies-grid">
       <MovieCard v-for="movie in moviesStore.movies" :key="movie.id" :movie="movie" />
     </div>
-    <div v-if="moviesStore.movies.length === 0 && !moviesStore.loading" class="empty">No se encontraron películas</div>
+    <div v-if="moviesStore.movies.length === 0 && !moviesStore.loading" class="empty">
+      🔥 No se encontraron películas
+    </div>
   </div>
 </template>
 
@@ -47,58 +58,119 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
 }
+
 .movies-title {
   text-align: center;
   margin-bottom: 2rem;
   font-size: 2rem;
-  color: #333;
+  color: #ff4444;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  position: relative;
 }
+
+.movies-title:after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #ff0000, #8b0000);
+  margin: 10px auto 0;
+  border-radius: 2px;
+}
+
 .search-bar {
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
   justify-content: center;
 }
+
 .search-input {
   flex: 1;
   max-width: 400px;
   padding: 0.75rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid #2a0000;
   border-radius: 25px;
   font-size: 1rem;
   outline: none;
+  background: #1a1a1a;
+  color: #e0e0e0;
 }
+
 .search-input:focus {
-  border-color: #667eea;
+  border-color: #ff0000;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
 }
+
+.search-input::placeholder {
+  color: #666;
+}
+
 .search-btn, .clear-btn {
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 25px;
   cursor: pointer;
   font-size: 1rem;
+  transition: all 0.3s;
 }
+
 .search-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #8b0000 0%, #ff0000 100%);
   color: white;
 }
+
+.search-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+}
+
 .clear-btn {
-  background: #f56565;
-  color: white;
+  background: #2a0000;
+  color: #ff4444;
+  border: 1px solid #ff0000;
 }
+
+.clear-btn:hover {
+  background: #ff0000;
+  color: white;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
 .movies-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
 }
+
 .loading, .error, .empty {
   text-align: center;
   padding: 2rem;
   font-size: 1.2rem;
 }
+
 .error {
-  color: #f56565;
+  color: #ff4444;
 }
+
+.empty {
+  color: #888;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #2a0000;
+  border-top-color: #ff0000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 @media (max-width: 1024px) {
   .movies-grid { grid-template-columns: repeat(3, 1fr); }
 }
