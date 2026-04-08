@@ -24,7 +24,7 @@ const authStore = useAuthStore();
 }
 .home h1 {
   margin-bottom: 1rem;
-  color: #333;
+  color: #ffffff;
 }
 .home a {
   color: #667eea;
