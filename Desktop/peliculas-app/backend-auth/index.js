@@ -2,46 +2,38 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-// Cargar variables de entorno
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middlewares
-app.use(cors());                    // Permite peticiones del frontend
-app.use(express.json());            // Para leer JSON
-app.use(express.urlencoded({ extended: true })); // Para formularios
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Ruta de prueba (para verificar que funciona)
-app.get('/api/test', (req, res) => {
-  res.json({ 
-    message: '🚀 Servidor funcionando correctamente',
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Importar rutas de autenticación
+// Rutas
 const authRoutes = require('./src/routes/auth.routes');
+const movieRoutes = require('./src/routes/movie.routes');
 
-// Usar rutas
 app.use('/api/auth', authRoutes);
+app.use('/api/movies', movieRoutes);
 
-// Manejo de errores (siempre al final)
-app.use((err, req, res, next) => {
-  console.error('❌ Error:', err.stack);
-  res.status(500).json({ 
-    error: 'Error interno del servidor',
-    message: err.message 
-  });
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Servidor funcionando correctamente' });
 });
 
-// Iniciar servidor
+app.use((err, req, res, next) => {
+  console.error('Error:', err.stack);
+  res.status(500).json({ error: 'Error interno del servidor' });
+});
+
 app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`📝 Endpoints disponibles:`);
+  console.log(` Servidor corriendo en http://localhost:${PORT}`);
+  console.log(` Endpoints:`);
   console.log(`   GET  /api/test           - Probar servidor`);
   console.log(`   POST /api/auth/register  - Registrar usuario`);
   console.log(`   POST /api/auth/login     - Iniciar sesión`);
-  console.log(`   GET  /api/auth/profile   - Obtener perfil (requiere token)`);
+  console.log(`   GET  /api/auth/profile   - Obtener perfil`);
+  console.log(`   GET  /api/movies/popular - Películas populares`);
+  console.log(`   GET  /api/movies/search  - Buscar películas`);
 });
