@@ -1,181 +1,141 @@
 <template>
-  <div class="auth-container">
-    <form @submit.prevent="handleSubmit" class="auth-card">
-      <h2>Registro de Usuario</h2>
+  <div class="profile-container">
+    <h2>Mi Perfil</h2>
 
-      <div v-if="error" class="error">{{ error }}</div>
+    <div v-if="authStore.loading" class="loading">
+      <div class="spinner"></div>
+      Cargando...
+    </div>
 
-      <div class="form-group">
-        <label>Nombre:</label>
-        <input type="text" v-model="form.nombre" required minlength="3" />
+    <div v-else-if="authStore.user" class="profile-card">
+      <div class="profile-avatar">
+        <img 
+          src="https://i.pinimg.com/474x/15/28/77/152877614590df059843d8c83fbff904.jpg" 
+          alt="Avatar" 
+          class="avatar-image"
+        />
       </div>
-
-      <div class="form-group">
-        <label>Email:</label>
-        <input type="email" v-model="form.email" required />
+      <div class="profile-info">
+        <p><strong>ID:</strong> {{ authStore.user.id }}</p>
+        <p><strong>Nombre:</strong> {{ authStore.user.nombre }}</p>
+        <p><strong>Email:</strong> {{ authStore.user.email }}</p>
+        <p><strong>Fecha de registro:</strong> {{ formatDate(authStore.user.fecha_registro) }}</p>
       </div>
-
-      <div class="form-group">
-        <label>Contraseña:</label>
-        <input type="password" v-model="form.password" required minlength="6" />
-      </div>
-
-      <div class="form-group">
-        <label>Confirmar Contraseña:</label>
-        <input type="password" v-model="form.confirmPassword" required />
-      </div>
-
-      <button type="submit" :disabled="loading">
-        {{ loading ? 'Registrando...' : 'Registrarse' }}
-      </button>
-
-      <p class="link">
-        ¿Ya tienes cuenta?
-        <router-link to="/login">Inicia sesión</router-link>
-      </p>
-    </form>
+      <button @click="handleLogout" class="logout-btn">Cerrar Sesión</button>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
+import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
 const router = useRouter();
 
-const form = ref({
-  nombre: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-});
-const error = ref('');
-const loading = ref(false);
+const handleLogout = () => {
+  authStore.logout();
+  router.push('/login');
+};
 
-const handleSubmit = async () => {
-  error.value = '';
-
-  if (form.value.password !== form.value.confirmPassword) {
-    error.value = 'Las contraseñas no coinciden';
-    return;
-  }
-
-  loading.value = true;
-
-  const result = await authStore.register({
-    nombre: form.value.nombre,
-    email: form.value.email,
-    password: form.value.password,
-  });
-
-  if (result.success) {
-    router.push('/profile');
-  } else {
-    error.value = result.error;
-  }
-
-  loading.value = false;
+const formatDate = (date) => {
+  if (!date) return 'No disponible';
+  return new Date(date).toLocaleDateString('es-ES');
 };
 </script>
 
 <style scoped>
-.auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 80vh;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a0000 100%);
-}
-
-.auth-card {
-  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+.profile-container {
+  max-width: 600px;
+  margin: 2rem auto;
   padding: 2rem;
-  border-radius: 10px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+  border-radius: 15px;
   box-shadow: 0 4px 20px rgba(255, 0, 0, 0.2);
-  width: 100%;
-  max-width: 400px;
   border: 1px solid #2a0000;
 }
 
-.auth-card h2 {
+.profile-container h2 {
   text-align: center;
   margin-bottom: 1.5rem;
   color: #ff4444;
+  font-size: 2rem;
 }
 
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #e0e0e0;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #2a0000;
-  border-radius: 5px;
-  font-size: 1rem;
+.profile-card {
   background: #1a1a1a;
+  padding: 1.5rem;
+  border-radius: 10px;
+  border: 1px solid #2a0000;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #8b0000 0%, #ff0000 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  overflow: hidden;
+}
+
+.avatar-image {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.profile-info p {
+  margin: 0.75rem 0;
   color: #e0e0e0;
+  padding: 0.5rem;
+  border-bottom: 1px solid #2a0000;
 }
 
-.form-group input:focus {
-  outline: none;
-  border-color: #ff0000;
-  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+.profile-info strong {
+  color: #ff4444;
+  display: inline-block;
+  width: 140px;
 }
 
-button {
-  width: 100%;
-  padding: 0.75rem;
+.logout-btn {
   background: linear-gradient(135deg, #8b0000 0%, #ff0000 100%);
   color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
   cursor: pointer;
+  font-size: 1rem;
+  width: 100%;
   margin-top: 1rem;
   transition: all 0.3s;
 }
 
-button:hover {
+.logout-btn:hover {
   transform: scale(1.02);
   box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
 }
 
-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.error {
-  background: rgba(255, 0, 0, 0.2);
-  color: #ff6666;
-  padding: 0.75rem;
-  border-radius: 5px;
-  margin-bottom: 1rem;
+.loading {
   text-align: center;
-  border: 1px solid #ff0000;
-}
-
-.link {
-  text-align: center;
-  margin-top: 1rem;
+  padding: 2rem;
   color: #888;
 }
 
-.link a {
-  color: #ff4444;
-  text-decoration: none;
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #2a0000;
+  border-top-color: #ff0000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
 }
 
-.link a:hover {
-  text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>
