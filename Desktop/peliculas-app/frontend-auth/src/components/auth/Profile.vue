@@ -82,10 +82,9 @@ const formatDate = (date) => {
 }
 
 .avatar-image {
-  width: 45px;
-  height: 45px;
-  object-fit: contain;
-  filter: brightness(0) invert(1);
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
 }
 
 .profile-info p {
