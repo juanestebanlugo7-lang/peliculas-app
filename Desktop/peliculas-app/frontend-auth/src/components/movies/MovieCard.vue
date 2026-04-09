@@ -13,7 +13,7 @@
     <div class="movie-card__info">
       <h3 class="movie-card__title">{{ movie.title }}</h3>
       <p class="movie-card__year">{{ movie.year }}</p>
-      <div class="movie-card__rating">🔥 {{ movie.rating }}</div>
+      <div class="movie-card__rating">⭐ {{ movie.rating }}</div>
     </div>
   </div>
 </template>
