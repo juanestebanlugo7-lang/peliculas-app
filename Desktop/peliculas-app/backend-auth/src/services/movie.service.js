@@ -6,22 +6,25 @@ const BASE_URL = process.env.TMDB_BASE_URL;
 const IMAGE_URL = process.env.TMDB_IMAGE_URL;
 
 class MovieService {
-  // Obtener películas por categoría (popular, top_rated, upcoming, now_playing)
+  // Obtener películas por categoría con soporte para filtros (género/año)
   async getMoviesByCategory(category, page = 1, genre = null, year = null) {
     try {
-      let params = {
-        language: 'es-ES',
-        page: page
-      };
+      let url = `${BASE_URL}/movie/${category}`;
+      let params = { language: 'es-ES', page: page };
 
-      if (genre) params.with_genres = genre;
-      if (year) params.primary_release_year = year;
+      // Si hay filtros de género o año, usar discover/movie
+      if (genre || year) {
+        url = `${BASE_URL}/discover/movie`;
+        params.sort_by = 'popularity.desc';
+        if (genre) params.with_genres = genre;
+        if (year) params.primary_release_year = year;
+      }
 
-      const response = await axios.get(`${BASE_URL}/movie/${category}`, {
+      const response = await axios.get(url, {
         headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` },
         params: params
       });
-      
+
       return {
         results: response.data.results.map(movie => ({
           id: movie.id,
@@ -39,12 +42,11 @@ class MovieService {
         current_page: response.data.page
       };
     } catch (error) {
-      console.error(`Error fetching ${category} movies:`, error.message);
+      console.error(`Error fetching movies:`, error.message);
       return { results: [], total_pages: 0, total_results: 0, current_page: 1 };
     }
   }
 
-  // Buscar películas con filtros
   async searchMovies(query, page = 1, genre = null, year = null) {
     try {
       let params = {
@@ -52,7 +54,6 @@ class MovieService {
         query: query,
         page: page
       };
-
       if (genre) params.with_genres = genre;
       if (year) params.year = year;
 
@@ -60,7 +61,7 @@ class MovieService {
         headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` },
         params: params
       });
-      
+
       return {
         results: response.data.results.map(movie => ({
           id: movie.id,
@@ -80,7 +81,6 @@ class MovieService {
     }
   }
 
-  // Obtener géneros
   async getGenres() {
     try {
       const response = await axios.get(`${BASE_URL}/genre/movie/list`, {
@@ -94,7 +94,6 @@ class MovieService {
     }
   }
 
-  // Obtener detalles de una película por ID
   async getMovieDetails(movieId) {
     try {
       const response = await axios.get(`${BASE_URL}/movie/${movieId}`, {

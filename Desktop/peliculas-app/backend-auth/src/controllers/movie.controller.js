@@ -1,13 +1,14 @@
 const movieService = require('../services/movie.service');
 
 const movieController = {
-  // Obtener películas por categoría
   getMoviesByCategory: async (req, res) => {
     try {
       const category = req.params.category || 'popular';
       const page = parseInt(req.query.page) || 1;
       const genre = req.query.genre || null;
       const year = req.query.year || null;
+
+      console.log(`[FILTROS] Categoría: ${category}, Página: ${page}, Género: ${genre}, Año: ${year}`);
 
       const movies = await movieService.getMoviesByCategory(category, page, genre, year);
       res.json({
@@ -23,7 +24,6 @@ const movieController = {
     }
   },
 
-  // Buscar películas
   searchMovies: async (req, res) => {
     try {
       const { query, page, genre, year } = req.query;
@@ -44,7 +44,6 @@ const movieController = {
     }
   },
 
-  // Obtener géneros
   getGenres: async (req, res) => {
     try {
       const genres = await movieService.getGenres();
@@ -54,18 +53,14 @@ const movieController = {
     }
   },
 
-  // Obtener detalles de una película por ID
   getMovieDetails: async (req, res) => {
     try {
       const { id } = req.params;
       const movie = await movieService.getMovieDetails(id);
-      if (!movie) {
-        return res.status(404).json({ error: 'Película no encontrada' });
-      }
+      if (!movie) return res.status(404).json({ error: 'Película no encontrada' });
       res.json({ success: true, movie });
     } catch (error) {
-      console.error('Error al obtener detalles:', error);
-      res.status(500).json({ error: 'Error al obtener detalles de la película' });
+      res.status(500).json({ error: 'Error al obtener detalles' });
     }
   }
 };
