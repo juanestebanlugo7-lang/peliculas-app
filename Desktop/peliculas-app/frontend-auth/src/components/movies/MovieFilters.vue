@@ -45,10 +45,10 @@ import { useMoviesStore } from '../../stores/movies';
 const moviesStore = useMoviesStore();
 
 const categories = [
-  { label: '🔥 Populares', value: 'popular' },
-  { label: '⭐ Mejor puntuadas', value: 'top_rated' },
-  { label: '🍿 Próximos estrenos', value: 'upcoming' },
-  { label: '🎬 En cines', value: 'now_playing' }
+  { label: ' Populares', value: 'popular' },
+  { label: ' Mejor puntuadas', value: 'top_rated' },
+  { label: ' Próximos estrenos', value: 'upcoming' },
+  { label: ' En cines', value: 'now_playing' }
 ];
 
 const localGenre = ref(moviesStore.selectedGenre);

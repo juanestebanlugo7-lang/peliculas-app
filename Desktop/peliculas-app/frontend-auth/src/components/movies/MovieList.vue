@@ -1,6 +1,6 @@
 <template>
   <div class="movies-container">
-    <h1 class="movies-title">🎬 Catálogo de Películas</h1>
+    <h1 class="movies-title"> Catálogo de Películas</h1>
     
     <!-- Barra de búsqueda -->
     <div class="search-bar">
@@ -33,7 +33,7 @@
     </div>
 
     <div v-if="moviesStore.movies.length === 0 && !moviesStore.loading" class="empty">
-      🎬 No se encontraron películas
+        No se encontraron películas
     </div>
 
     <!-- Paginación -->
