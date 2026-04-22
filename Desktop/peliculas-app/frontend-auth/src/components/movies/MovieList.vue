@@ -1,30 +1,43 @@
 <template>
   <div class="movies-container">
-    <h1 class="movies-title">Catálogo de Películas</h1>
+    <h1 class="movies-title">🎬 Catálogo de Películas</h1>
     
+    <!-- Barra de búsqueda -->
     <div class="search-bar">
       <input 
         type="text" 
-        v-model="searchQuery" 
-        @keyup.enter="searchMovies" 
+        v-model="searchInput" 
+        @keyup.enter="performSearch" 
         placeholder="Buscar películas..." 
         class="search-input"
       />
-      <button @click="searchMovies" class="search-btn">Buscar</button>
-      <button v-if="searchQuery" @click="clearSearch" class="clear-btn">Limpiar</button>
+      <button @click="performSearch" class="search-btn">Buscar</button>
+      <button v-if="moviesStore.searchQuery" @click="clearSearch" class="clear-btn">Limpiar</button>
     </div>
 
+    <!-- Filtros -->
+    <MovieFilters />
+
+    <!-- Resultados -->
     <div v-if="moviesStore.loading" class="loading">
       <div class="spinner"></div>
       Cargando películas...
     </div>
-    <div v-else-if="moviesStore.error" class="error">{{ moviesStore.error }}</div>
+
+    <div v-else-if="moviesStore.error" class="error">
+      {{ moviesStore.error }}
+    </div>
+
     <div v-else class="movies-grid">
       <MovieCard v-for="movie in moviesStore.movies" :key="movie.id" :movie="movie" />
     </div>
+
     <div v-if="moviesStore.movies.length === 0 && !moviesStore.loading" class="empty">
-      🔥 No se encontraron películas
+      🎬 No se encontraron películas
     </div>
+
+    <!-- Paginación -->
+    <MoviePagination v-if="moviesStore.totalPages > 1" />
   </div>
 </template>
 
@@ -32,23 +45,30 @@
 import { ref, onMounted } from 'vue';
 import { useMoviesStore } from '../../stores/movies';
 import MovieCard from './MovieCard.vue';
+import MovieFilters from './MovieFilters.vue';
+import MoviePagination from './MoviePagination.vue';
 
 const moviesStore = useMoviesStore();
-const searchQuery = ref('');
+const searchInput = ref(moviesStore.searchQuery);
 
-const searchMovies = () => {
-  if (searchQuery.value.trim()) {
-    moviesStore.searchMovies(searchQuery.value);
-  }
+const performSearch = () => {
+  moviesStore.searchQuery = searchInput.value;
+  moviesStore.currentPage = 1;
+  moviesStore.searchMovies();
 };
 
 const clearSearch = () => {
-  searchQuery.value = '';
-  moviesStore.fetchPopularMovies();
+  searchInput.value = '';
+  moviesStore.searchQuery = '';
+  moviesStore.currentCategory = 'popular';
+  moviesStore.selectedGenre = null;
+  moviesStore.selectedYear = null;
+  moviesStore.currentPage = 1;
+  moviesStore.fetchMovies();
 };
 
 onMounted(() => {
-  moviesStore.fetchPopularMovies();
+  moviesStore.fetchMovies();
 });
 </script>
 
@@ -65,7 +85,6 @@ onMounted(() => {
   font-size: 2rem;
   color: #ff4444;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  position: relative;
 }
 
 .movies-title:after {
@@ -134,7 +153,6 @@ onMounted(() => {
 .clear-btn:hover {
   background: #ff0000;
   color: white;
-  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
 }
 
 .movies-grid {

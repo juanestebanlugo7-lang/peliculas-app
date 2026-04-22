@@ -1,30 +1,42 @@
 const movieService = require('../services/movie.service');
 
 const movieController = {
-  getPopularMovies: async (req, res) => {
+  // Obtener películas por categoría
+  getMoviesByCategory: async (req, res) => {
     try {
-      const page = req.query.page || 1;
-      const movies = await movieService.getPopularMovies(page);
+      const category = req.params.category || 'popular';
+      const page = parseInt(req.query.page) || 1;
+      const genre = req.query.genre || null;
+      const year = req.query.year || null;
+
+      const movies = await movieService.getMoviesByCategory(category, page, genre, year);
       res.json({
         success: true,
-        results: movies,
-        total: movies.length
+        results: movies.results,
+        total_pages: movies.total_pages,
+        total_results: movies.total_results,
+        current_page: movies.current_page,
+        category: category
       });
     } catch (error) {
       res.status(500).json({ error: 'Error al obtener películas' });
     }
   },
 
+  // Buscar películas
   searchMovies: async (req, res) => {
     try {
-      const { query, page } = req.query;
+      const { query, page, genre, year } = req.query;
       if (!query) {
         return res.status(400).json({ error: 'Se requiere un término de búsqueda' });
       }
-      const movies = await movieService.searchMovies(query, page || 1);
+      const movies = await movieService.searchMovies(query, parseInt(page) || 1, genre, year);
       res.json({
         success: true,
-        results: movies,
+        results: movies.results,
+        total_pages: movies.total_pages,
+        total_results: movies.total_results,
+        current_page: movies.current_page,
         query: query
       });
     } catch (error) {
@@ -32,6 +44,17 @@ const movieController = {
     }
   },
 
+  // Obtener géneros
+  getGenres: async (req, res) => {
+    try {
+      const genres = await movieService.getGenres();
+      res.json({ success: true, genres });
+    } catch (error) {
+      res.status(500).json({ error: 'Error al obtener géneros' });
+    }
+  },
+
+  // Obtener detalles de una película por ID
   getMovieDetails: async (req, res) => {
     try {
       const { id } = req.params;
@@ -39,12 +62,10 @@ const movieController = {
       if (!movie) {
         return res.status(404).json({ error: 'Película no encontrada' });
       }
-      res.json({
-        success: true,
-        movie
-      });
+      res.json({ success: true, movie });
     } catch (error) {
-      res.status(500).json({ error: 'Error al obtener detalles' });
+      console.error('Error al obtener detalles:', error);
+      res.status(500).json({ error: 'Error al obtener detalles de la película' });
     }
   }
 };
