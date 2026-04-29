@@ -1,120 +1,76 @@
 <template>
   <div class="movie-card" @click="goToDetail">
     <div class="movie-card__image">
-      <img 
-        v-if="movie.poster" 
-        :src="movie.poster" 
-        :alt="movie.title"
-        class="movie-poster"
-        @error="handleImageError"
-      />
-      <div v-else class="movie-placeholder"></div>
+      <img v-if="movie.poster" :src="movie.poster" :alt="movie.title" />
+      <div v-else class="placeholder"></div>
     </div>
     <div class="movie-card__info">
-      <h3 class="movie-card__title">{{ movie.title }}</h3>
-      <p class="movie-card__year">{{ movie.year }}</p>
-      <div class="movie-card__rating">⭐ {{ movie.rating }}</div>
+      <h3>{{ movie.title }}</h3>
+      <p>{{ movie.year }}</p>
+      <div class="rating">⭐ {{ movie.rating }}</div>
+      <div class="list-actions">
+        <button @click.stop="toggleLista('favoritas')" :class="{ active: estaEnFavoritas }">❤️</button>
+        <button @click.stop="toggleLista('pendientes')" :class="{ active: estaEnPendientes }">⏳</button>
+        <button @click.stop="toggleLista('vistas')" :class="{ active: estaEnVistas }">👁️</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useListaStore } from '../../stores/lista';
 
-const props = defineProps({
-  movie: { type: Object, required: true }
+const props = defineProps({ movie: Object });
+const router = useRouter();
+const listaStore = useListaStore();
+
+const estaEnFavoritas = ref(false);
+const estaEnPendientes = ref(false);
+const estaEnVistas = ref(false);
+
+onMounted(async () => {
+  estaEnFavoritas.value = await listaStore.verificarEnLista('favoritas', props.movie.id);
+  estaEnPendientes.value = await listaStore.verificarEnLista('pendientes', props.movie.id);
+  estaEnVistas.value = await listaStore.verificarEnLista('vistas', props.movie.id);
 });
 
-const router = useRouter();
-
-const goToDetail = () => {
-  router.push(`/movie/${props.movie.id}`);
+const toggleLista = async (nombre) => {
+  if (nombre === 'favoritas') {
+    if (estaEnFavoritas.value) await listaStore.quitarPelicula(nombre, props.movie.id);
+    else await listaStore.agregarPelicula(nombre, props.movie.id);
+    estaEnFavoritas.value = !estaEnFavoritas.value;
+  } else if (nombre === 'pendientes') {
+    if (estaEnPendientes.value) await listaStore.quitarPelicula(nombre, props.movie.id);
+    else await listaStore.agregarPelicula(nombre, props.movie.id);
+    estaEnPendientes.value = !estaEnPendientes.value;
+  } else if (nombre === 'vistas') {
+    if (estaEnVistas.value) await listaStore.quitarPelicula(nombre, props.movie.id);
+    else await listaStore.agregarPelicula(nombre, props.movie.id);
+    estaEnVistas.value = !estaEnVistas.value;
+  }
 };
 
-const handleImageError = (e) => {
-  e.target.style.display = 'none';
-  e.target.parentElement.innerHTML = '<div class="movie-placeholder"></div>';
-};
+const goToDetail = () => router.push(`/movie/${props.movie.id}`);
 </script>
 
 <style scoped>
 .movie-card {
-  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border: 1px solid #2a0000;
+  background: #1a1a1a; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s;
 }
-
-.movie-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(255, 0, 0, 0.2);
-  border: 1px solid #ff0000;
-}
-
+.movie-card:hover { transform: scale(1.02); }
 .movie-card__image {
-  width: 100%;
-  height: 350px;
-  overflow: hidden;
-  background: linear-gradient(135deg, #2a0000 0%, #1a0000 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
+  height: 350px; background: #2a2a2a; display: flex; align-items: center; justify-content: center;
 }
-
-.movie-card:hover .movie-card__image::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 0, 0, 0.1);
+.movie-card__image img { width: 100%; height: 100%; object-fit: cover; }
+.placeholder { font-size: 3rem; color: #888; }
+.movie-card__info { padding: 0.75rem; color: white; }
+.rating { color: #ffc107; margin-top: 0.25rem; }
+.list-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.list-actions button {
+  background: rgba(0,0,0,0.4); border: 1px solid #555; border-radius: 20px;
+  padding: 0.2rem 0.5rem; cursor: pointer; font-size: 0.8rem;
 }
-
-.movie-poster {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.movie-card:hover .movie-poster {
-  transform: scale(1.05);
-}
-
-.movie-placeholder {
-  font-size: 4rem;
-  color: rgba(255, 0, 0, 0.6);
-}
-
-.movie-card__info {
-  padding: 1rem;
-}
-
-.movie-card__title {
-  margin: 0 0 0.5rem 0;
-  font-size: 1rem;
-  font-weight: bold;
-  color: #e0e0e0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.movie-card__year {
-  margin: 0.25rem 0;
-  font-size: 0.85rem;
-  color: #888;
-}
-
-.movie-card__rating {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #ff4444;
-  font-weight: bold;
-}
+.list-actions button.active { background: #8b0000; border-color: #ff0000; }
 </style>

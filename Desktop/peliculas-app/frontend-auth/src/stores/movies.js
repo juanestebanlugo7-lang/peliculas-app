@@ -40,7 +40,6 @@ export const useMoviesStore = defineStore('movies', {
         let url = `/movies/category/${this.currentCategory}?page=${this.currentPage}`;
         if (this.selectedGenre) url += `&genre=${this.selectedGenre}`;
         if (this.selectedYear) url += `&year=${this.selectedYear}`;
-        
         const response = await api.get(url);
         this.movies = response.data.results;
         this.totalPages = response.data.total_pages;
@@ -51,6 +50,16 @@ export const useMoviesStore = defineStore('movies', {
         console.error(error);
       } finally {
         this.loading = false;
+      }
+    },
+
+    async fetchMovieDetails(id) {
+      try {
+        const response = await api.get(`/movies/${id}`);
+        return response.data.movie;
+      } catch (error) {
+        console.error('Error fetching movie details:', error);
+        throw error;
       }
     },
 
@@ -69,7 +78,6 @@ export const useMoviesStore = defineStore('movies', {
         let url = `/movies/search?query=${encodeURIComponent(this.searchQuery)}&page=${this.currentPage}`;
         if (this.selectedGenre) url += `&genre=${this.selectedGenre}`;
         if (this.selectedYear) url += `&year=${this.selectedYear}`;
-        
         const response = await api.get(url);
         this.movies = response.data.results;
         this.totalPages = response.data.total_pages;

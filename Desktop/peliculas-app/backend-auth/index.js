@@ -14,6 +14,8 @@ app.use(express.urlencoded({ extended: true }));
 // Rutas
 const authRoutes = require('./src/routes/auth.routes');
 const movieRoutes = require('./src/routes/movie.routes');
+const listaRoutes = require('./src/routes/lista.routes');
+app.use('/api/listas', listaRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/movies', movieRoutes);
