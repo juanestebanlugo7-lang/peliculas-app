@@ -1,84 +1,71 @@
 <template>
-  <div class="profile-container">
+ <div class="profile-container">
     <h2>Mi Perfil</h2>
-
-    <div v-if="authStore.loading" class="loading">Cargando...</div>
-
-    <div v-else-if="authStore.user" class="profile-card">
-      <p><strong>ID:</strong> {{ authStore.user.id }}</p>
+    <div v-if="authStore.user" class="profile-info">
       <p><strong>Nombre:</strong> {{ authStore.user.nombre }}</p>
       <p><strong>Email:</strong> {{ authStore.user.email }}</p>
-      <p>
-        <strong>Fecha de registro:</strong>
-        {{ formatDate(authStore.user.fecha_registro) }}
-      </p>
-      <button @click="handleLogout" class="logout-btn">Cerrar Sesión</button>
+      <p><strong>Fecha de registro:</strong> {{ formatDate(authStore.user.fecha_registro) }}</p>
+      <button @click="logout" class="logout-btn">Cerrar Sesión</button>
     </div>
   </div>
 </template>
 
 <script setup>
 import { useAuthStore } from '../../stores/auth';
-import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
-const router = useRouter();
 
-const handleLogout = () => {
-  authStore.logout();
-  router.push('/login');
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 };
 
-const formatDate = (date) => {
-  if (!date) return 'No disponible';
-  return new Date(date).toLocaleDateString('es-ES');
+const logout = () => {
+  if (typeof authStore.logout === 'function') {
+    authStore.logout();
+  }
 };
 </script>
 
 <style scoped>
-.profile-container {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.list-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
 }
-
-.profile-container h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: #333;
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
-
-.profile-card {
-  background: #f9f9f9;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-top: 1rem;
-}
-
-.profile-card p {
-  margin: 0.5rem 0;
-  font-size: 1.1rem;
-}
-
-.logout-btn {
-  background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
-  margin-top: 1rem;
-  width: 100%;
-  padding: 0.75rem;
-  color: white;
+.back-btn {
+  background: #8b0000;
   border: none;
-  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  color: white;
   cursor: pointer;
-  font-size: 1rem;
 }
-
-.loading {
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+.loading, .error, .empty {
   text-align: center;
   padding: 2rem;
   font-size: 1.2rem;
-  color: #666;
+}
+@media (max-width: 1024px) {
+  .movies-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .movies-grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>

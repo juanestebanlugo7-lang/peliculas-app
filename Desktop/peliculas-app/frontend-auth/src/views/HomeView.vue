@@ -5,7 +5,7 @@
       Hola, {{ authStore.userName }}. ¡Bienvenido!
     </p>
     <p v-else>
-      Por favor, <router-link to="/login">inicia sesión</router-link> para
+      Por favor, <router-link to="/login">inicia una sesión</router-link> para
       continuar.
     </p>
   </div>
@@ -24,7 +24,7 @@ const authStore = useAuthStore();
 }
 .home h1 {
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 .home a {
   color: #667eea;

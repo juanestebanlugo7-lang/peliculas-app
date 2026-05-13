@@ -2,39 +2,27 @@
   <div class="auth-container">
     <form @submit.prevent="handleSubmit" class="auth-card">
       <h2>Iniciar Sesión</h2>
-
       <div v-if="error" class="error">{{ error }}</div>
-
       <div class="form-group">
         <label>Email:</label>
         <input type="email" v-model="form.email" required />
       </div>
-
       <div class="form-group">
         <label>Contraseña:</label>
         <input type="password" v-model="form.password" required />
       </div>
-
-      <button type="submit" :disabled="loading">
-        {{ loading ? 'Cargando...' : 'Ingresar' }}
-      </button>
-
-      <p class="link">
-        ¿No tienes cuenta?
-        <router-link to="/register">Regístrate</router-link>
-      </p>
+      <button type="submit" :disabled="loading">Ingresar</button>
+      <p class="link">¿No tienes cuenta? <router-link to="/register">Regístrate</router-link></p>
     </form>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 
+const emit = defineEmits(['login-success', 'login-requires-2fa']);
 const authStore = useAuthStore();
-const router = useRouter();
-
 const form = ref({ email: '', password: '' });
 const error = ref('');
 const loading = ref(false);
@@ -42,18 +30,19 @@ const loading = ref(false);
 const handleSubmit = async () => {
   error.value = '';
   loading.value = true;
-
   const result = await authStore.login(form.value);
-
   if (result.success) {
-    router.push('/profile');
+    emit('login-success');
+  } else if (result.requires2FA) {
+    emit('login-requires-2fa');
   } else {
-    error.value = result.error;
+    error.value = result.error || 'Error al iniciar sesión';
   }
-
   loading.value = false;
 };
 </script>
+
+
 
 <style scoped>
 .auth-container {
@@ -61,22 +50,23 @@ const handleSubmit = async () => {
   justify-content: center;
   align-items: center;
   min-height: 80vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a0000 100%);
 }
 
 .auth-card {
-  background: white;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
   padding: 2rem;
   border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(255, 0, 0, 0.2);
   width: 100%;
   max-width: 400px;
+  border: 1px solid #2a0000;
 }
 
 .auth-card h2 {
   text-align: center;
   margin-bottom: 1.5rem;
-  color: #333;
+  color: #ff4444;
 }
 
 .form-group {
@@ -86,27 +76,41 @@ const handleSubmit = async () => {
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #555;
+  color: #e0e0e0;
 }
 
 .form-group input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid #2a0000;
   border-radius: 5px;
   font-size: 1rem;
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #ff0000;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
 }
 
 button {
   width: 100%;
   padding: 0.75rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #8b0000 0%, #ff0000 100%);
   color: white;
   border: none;
   border-radius: 5px;
   font-size: 1rem;
   cursor: pointer;
   margin-top: 1rem;
+  transition: all 0.3s;
+}
+
+button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
 }
 
 button:disabled {
@@ -115,22 +119,27 @@ button:disabled {
 }
 
 .error {
-  background: #fee;
-  color: #c33;
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff6666;
   padding: 0.75rem;
   border-radius: 5px;
   margin-bottom: 1rem;
   text-align: center;
+  border: 1px solid #ff0000;
 }
 
 .link {
   text-align: center;
   margin-top: 1rem;
-  color: #666;
+  color: #888;
 }
 
 .link a {
-  color: #667eea;
+  color: #ff4444;
   text-decoration: none;
+}
+
+.link a:hover {
+  text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
 }
 </style>

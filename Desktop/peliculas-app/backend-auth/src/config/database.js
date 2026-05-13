@@ -13,10 +13,10 @@ const pool = new Pool({
 // Probar la conexión
 pool.connect((err, client, release) => {
   if (err) {
-    console.error('❌ Error conectando a PostgreSQL:', err.stack);
+    console.error(' Error conectando a PostgreSQL:', err.stack);
   } else {
-    console.log('✅ Conectado a PostgreSQL correctamente');
-    console.log(`📊 Base de datos: ${process.env.DB_NAME}`);
+    console.log(' Conectado a PostgreSQL correctamente');
+    console.log(` Base de datos: ${process.env.DB_NAME}`);
     release();
   }
 });

@@ -5,66 +5,44 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     token: localStorage.getItem('token') || null,
-    loading: false,
+    loading: false
   }),
-
   getters: {
-    isAuthenticated: (state) => !!state.token,
-    userName: (state) => state.user?.nombre || '',
+    isAuthenticated: (state) => !!state.token
   },
-
   actions: {
-    async register(userData) {
-      this.loading = true;
-      try {
-        const response = await api.post('/auth/register', userData);
-        this.token = response.data.token;
-        this.user = response.data.usuario;
-        localStorage.setItem('token', this.token);
-        return { success: true, data: response.data };
-      } catch (error) {
-        return {
-          success: false,
-          error: error.response?.data?.error || 'Error al registrar',
-        };
-      } finally {
-        this.loading = false;
-      }
-    },
-
     async login(credentials) {
       this.loading = true;
       try {
-        const response = await api.post('/auth/login', credentials);
-        this.token = response.data.token;
-        this.user = response.data.usuario;
+        const res = await api.post('/auth/login', credentials);
+        this.token = res.data.token;
+        this.user = res.data.usuario;
         localStorage.setItem('token', this.token);
-        return { success: true, data: response.data };
+        return { success: true };
       } catch (error) {
-        return {
-          success: false,
-          error: error.response?.data?.error || 'Error al iniciar sesión',
-        };
+        return { success: false, error: error.response?.data?.error || 'Error al iniciar sesión' };
       } finally {
         this.loading = false;
       }
     },
-
-    async getProfile() {
-      if (!this.token) return;
+    async register(userData) {
+      this.loading = true;
       try {
-        const response = await api.get('/auth/profile');
-        this.user = response.data;
+        const res = await api.post('/auth/register', userData);
+        this.token = res.data.token;
+        this.user = res.data.usuario;
+        localStorage.setItem('token', this.token);
+        return { success: true };
       } catch (error) {
-        console.error('Error al obtener perfil:', error);
-        this.logout();
+        return { success: false, error: error.response?.data?.error || 'Error al registrar' };
+      } finally {
+        this.loading = false;
       }
     },
-
     logout() {
       this.user = null;
       this.token = null;
       localStorage.removeItem('token');
-    },
-  },
+    }
+  }
 });
